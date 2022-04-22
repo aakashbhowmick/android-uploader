@@ -1,7 +1,5 @@
 package com.example.androidexplore
 import android.Manifest
-import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -13,26 +11,34 @@ import androidx.core.app.ActivityCompat
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
 import io.tus.android.client.TusPreferencesURLStore
 import io.tus.java.client.TusClient
-import io.tus.java.client.TusUpload
-import io.tus.java.client.TusUploader
-import java.io.File
 import java.net.URL
 
 class FirstActivity : AppCompatActivity() {
+
+    /** Callback from file picker */
+    var fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri ->
+        println("URI received : ${uri}")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Register button for choosing file
-        var btnOpen = findViewById<Button>(R.id.btnOpenActivity)
-        btnOpen.setOnClickListener{
+        var btnFilePick = findViewById<Button>(R.id.btnPickFile)
+        btnFilePick.setOnClickListener{
             requestPermission()
+            startFilePickActivity()
+        }
+
+        // Register button for making get request
+        var btnUpload = findViewById<Button>(R.id.btnUpload)
+        btnUpload.setOnClickListener{
             makeGetRequest()     // Make a dummy get request
         }
+
     }
 
     private fun uploadFile(){
@@ -82,11 +88,6 @@ class FirstActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    /** Callback from file picker */
-    var fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri ->
-        println("URI received : ${uri}")
     }
 
     private fun startFilePickActivity() {
