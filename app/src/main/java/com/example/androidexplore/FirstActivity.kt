@@ -1,6 +1,7 @@
 package com.example.androidexplore
 import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +18,8 @@ import io.tus.android.client.TusPreferencesURLStore
 import io.tus.java.client.TusClient
 import io.tus.java.client.TusUpload
 import io.tus.java.client.TusUploader
+import java.io.File
+import java.net.URL
 
 class FirstActivity : AppCompatActivity() {
 
@@ -30,6 +33,13 @@ class FirstActivity : AppCompatActivity() {
             requestPermission()
             makeGetRequest()     // Make a dummy get request
         }
+    }
+
+    private fun uploadFile(){
+        var client = TusClient()
+        client.setUploadCreationURL( URL("http://localhost:5000/upload") )
+        var pref = getSharedPreferences("tus", 0)
+        client.enableResuming(TusPreferencesURLStore(pref))
     }
 
     private fun makeGetRequest() {
@@ -77,5 +87,10 @@ class FirstActivity : AppCompatActivity() {
     /** Callback from file picker */
     var fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri ->
         println("URI received : ${uri}")
+    }
+
+    private fun startFilePickActivity() {
+        // Open appropriate file picking activity
+        fileLauncher.launch("application/*")
     }
 }
