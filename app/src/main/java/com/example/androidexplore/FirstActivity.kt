@@ -8,11 +8,15 @@ import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import io.tus.android.client.TusAndroidUpload
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import io.tus.android.client.TusPreferencesURLStore
 import io.tus.java.client.TusClient
+import io.tus.java.client.TusExecutor
+import io.tus.java.client.TusUpload
+import java.io.File
 import java.net.URL
 
 class FirstActivity : AppCompatActivity() {
@@ -20,6 +24,8 @@ class FirstActivity : AppCompatActivity() {
     /** Callback from file picker */
     var fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri ->
         println("URI received : ${uri}")
+        println("Starting upload .. ")
+        uploadFile(uri)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,11 +47,19 @@ class FirstActivity : AppCompatActivity() {
 
     }
 
-    private fun uploadFile(){
+    private fun uploadFile(uri:Uri){
         var client = TusClient()
         client.setUploadCreationURL( URL("http://localhost:5000/upload") )
         var pref = getSharedPreferences("tus", 0)
         client.enableResuming(TusPreferencesURLStore(pref))
+
+        print("Path : "+uri.path)
+        var file = File(uri.path)
+        var tusUpload = TusAndroidUpload(uri, this)
+
+        var uploader = FileUploader(client, tusUpload)
+        uploader.makeAttempts()
+
     }
 
     private fun makeGetRequest() {
