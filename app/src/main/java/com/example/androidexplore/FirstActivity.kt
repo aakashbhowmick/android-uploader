@@ -13,6 +13,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.create
+import io.tus.android.client.TusPreferencesURLStore
+import io.tus.java.client.TusClient
+import io.tus.java.client.TusUpload
+import io.tus.java.client.TusUploader
 
 class FirstActivity : AppCompatActivity() {
 
@@ -24,19 +28,14 @@ class FirstActivity : AppCompatActivity() {
         var btnOpen = findViewById<Button>(R.id.btnOpenActivity)
         btnOpen.setOnClickListener{
             requestPermission()
-            //fileLauncher.launch("application/*")
-
-            // Make a dummy get request
-            makeGetRequest()
+            makeGetRequest()     // Make a dummy get request
         }
     }
 
     private fun makeGetRequest() {
         val apiInterface = APIClient().getClient()?.create<APIInterface>(APIInterface::class.java)
 
-        /**
-         * GET List Resources
-         */
+        /**  GET List Resources */
         val call: Call<APIResponse?>? = apiInterface!!.doGetListResources()
 
         call?.enqueue(object : Callback<APIResponse?> {
@@ -60,6 +59,7 @@ class FirstActivity : AppCompatActivity() {
     private fun hasWritePermission() =
         ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
+
     private fun requestPermission() {
         if(!hasWritePermission()){
             var perms = listOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -74,9 +74,7 @@ class FirstActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    /**
-     * Callback from file-picker
-     */
+    /** Callback from file picker */
     var fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri ->
         println("URI received : ${uri}")
     }
